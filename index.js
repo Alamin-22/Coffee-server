@@ -29,7 +29,8 @@ async function run() {
         // Connect the client to the server	
         await client.connect();
 
-        const coffeeCollection = client.db("coffeeDB").collection("collection")
+        const coffeeCollection = client.db("coffeeDB").collection("coffee");
+        const UserCollection= client.db("coffeeDB").collection("User")
 
 
         app.get("/coffee", async (req, res) => {
@@ -54,9 +55,9 @@ async function run() {
 
         app.put("/coffee/:id", async (req, res) => {
             const id = req.params.id;
-            const filter = { id: new ObjectId(id) };
+            const filter = { _id: new ObjectId(id) };
             const options = { upsert: true };
-            const updateCoffee= req.body;
+            const updateCoffee = req.body;
             const Coffee = {
                 $set: {
                     name: updateCoffee.name,
@@ -65,7 +66,7 @@ async function run() {
                     taste: updateCoffee.taste,
                     category: updateCoffee.category,
                     details: updateCoffee.details,
-                    photo: updateCoffee.photo,  
+                    photo: updateCoffee.photo,
                 }
             }
 
@@ -82,7 +83,21 @@ async function run() {
             res.send(result);
         })
 
+        // user related APIs
 
+        app.get("/user", async(req, res)=>{
+            const cursor= UserCollection.find()
+            const users= await cursor.toArray();
+            res.send(users);
+        })
+
+
+        app.post('/user', async (req, res) => {
+            const User = req.body;
+            console.log(User);
+            const result = await UserCollection.insertOne(User);
+            res.send(result);
+        })
 
 
         // Send a ping to confirm a successful connection
